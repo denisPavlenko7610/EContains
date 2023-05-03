@@ -1,4 +1,6 @@
-﻿namespace WordLogger
+﻿using System.Text.RegularExpressions;
+
+namespace WordLogger
 {
     class Program
     {
@@ -15,9 +17,11 @@
             count = GetAllWords(words, count, filePathToWords);
             learnedCount = GetAllWords(learnedWords, learnedCount, filePathToLearned);
 
+            Console.WriteLine($"Words {count} words.");
+            Console.WriteLine($"Learned {learnedCount} words.");
+
             count = GetCommands(words, learnedWords, count, filePathToWords, filePathToLearned);
 
-            //Console.WriteLine($"Total words: {count}");
             Console.ReadLine();
         }
 
@@ -26,8 +30,6 @@
             if (File.Exists(filePathToWords))
             {
                 count = GetWords(words, count, filePathToWords).Result;
-
-                Console.WriteLine($"Loaded {count} words.");
                 SaveFile(words, filePathToWords);
             }
             else
@@ -54,7 +56,7 @@
                     input = "";
                     continue;
                 }
-                else if ((input?.ToLower() == "d")) //del
+                else if (input?.ToLower() == "d") //del
                 {
                     count = DeleteWord(words, count, filePathToWords);
                     input = "";
@@ -65,7 +67,7 @@
                     Console.Clear();
                     continue;
                 }
-                else if (input?.ToLower() == "l")
+                else if (input?.ToLower() == "l") //learn
                 {
                     Console.WriteLine("What word is learned?");
                     string word = Console.ReadLine();
@@ -166,11 +168,13 @@
         {
             string[] lines = File.ReadAllLines(filePath);
             bool isDeleted = false;
+            Regex pattern = new Regex($@"\b{Regex.Escape(wordToDelete)}\b", RegexOptions.IgnoreCase);
+
             for (int i = 0; i < lines.Length; i++)
             {
-                if (lines[i].ToLower().Contains(wordToDelete.ToLower()))
+                if (pattern.IsMatch(lines[i]) && lines[i].ToLower().Contains(wordToDelete.ToLower()))
                 {
-                    lines[i] = lines[i].Replace(wordToDelete, "");
+                    lines[i] = pattern.Replace(lines[i], string.Empty);
                     isDeleted = true;
                     listOfWords.Remove(lines[i]);
                     Console.WriteLine("Del");
