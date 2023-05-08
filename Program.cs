@@ -4,8 +4,6 @@ namespace WordLogger
 {
     class Program
     {
-        static int count = 0;
-        static int learnedCount = 0;
         const string filePathToWords = "words.txt";
         const string filePathToLearned = "learnedWords.txt";
 
@@ -14,33 +12,31 @@ namespace WordLogger
             List<string> words = new List<string>();
             List<string> learnedWords = new List<string>();
 
-            count = GetAllWords(words, count, filePathToWords);
-            learnedCount = GetAllWords(learnedWords, learnedCount, filePathToLearned);
+            GetAllWords(words, filePathToWords);
+            GetAllWords(learnedWords, filePathToLearned);
 
-            Console.WriteLine($"Words {count} words.");
-            Console.WriteLine($"Learned {learnedCount} words.");
+            Console.WriteLine($"Words {words.Count} words.");
+            Console.WriteLine($"Learned {learnedWords.Count} words.");
 
-            count = GetCommands(words, learnedWords, count, filePathToWords, filePathToLearned);
+            GetCommands(words, learnedWords, filePathToWords, filePathToLearned);
 
             Console.ReadLine();
         }
 
-        private static int GetAllWords(List<string> words, int count, string filePathToWords)
+        private static void GetAllWords(List<string> words, string filePathToWords)
         {
             if (File.Exists(filePathToWords))
             {
-                count = GetWords(words, count, filePathToWords).Result;
+                GetWords(words, filePathToWords);
                 SaveFile(words, filePathToWords);
             }
             else
             {
                 Console.WriteLine($"File '{filePathToWords}' does not exist.");
             }
-
-            return count;
         }
 
-        private static int GetCommands(List<string> words, List<string> learnedWords, int count, string filePathToWords, string filePathToLearned)
+        private static void GetCommands(List<string> words, List<string> learnedWords, string filePathToWords, string filePathToLearned)
         {
             while (true)
             {
@@ -58,7 +54,7 @@ namespace WordLogger
                 }
                 else if (input?.ToLower() == "d") //del
                 {
-                    count = DeleteWord(words, count, filePathToWords);
+                    DeleteWord(words, filePathToWords);
                     input = "";
                     continue;
                 }
@@ -71,25 +67,23 @@ namespace WordLogger
                 {
                     Console.WriteLine("What word is learned?");
                     string word = Console.ReadLine();
-                    TryAddWord(words, learnedWords, count, word, true);
+                    TryAddWord(words, learnedWords, word, true);
                     input = "";
                     continue;
                 }
 
-                count = TryAddWord(words, learnedWords, count, input, false);
+                TryAddWord(words, learnedWords, input, false);
             }
-
-            return count;
         }
 
-        private static int TryAddWord(List<string> words, List<string> learnedWords, int count, string? word, bool isLearnedWord)
+        private static void TryAddWord(List<string> words, List<string> learnedWords, string? word, bool isLearnedWord)
         {
             if (isLearnedWord && words.Contains(word.ToLower()))
             {
                 DeleteWord(filePathToWords, word, words);
-                learnedCount = AddWord(learnedWords, learnedCount, filePathToLearned, word, isLearnedWord);
+                AddWord(learnedWords, filePathToLearned, word, isLearnedWord);
                 Console.WriteLine("Deleted");
-                return 0;
+                return;
             }
 
             if (words.Contains(word.ToLower()) || learnedWords.Contains(word.ToLower()))
@@ -98,28 +92,24 @@ namespace WordLogger
             }
             else
             {
-                count = AddWord(words, count, filePathToWords, word, isLearnedWord);
+                AddWord(words, filePathToWords, word, isLearnedWord);
             }
-
-            return count;
         }
 
-        private static int AddWord(List<string> words, int count, string filePath, string input, bool isLearnedWord)
+        private static void AddWord(List<string> words, string filePath, string input, bool isLearnedWord)
         {
             words.Add(input.ToLower());
             Console.WriteLine($"'{input}' added.");
 
             if (!isLearnedWord)
             {
-                count++;
-                Console.WriteLine($"Total words: {count}");
+                Console.WriteLine($"Total words: {words.Where(s => !string.IsNullOrEmpty(s)).Count()}");
             }
 
             File.AppendAllTextAsync(filePath, $"{input}\n");
-            return count;
         }
 
-        private static int DeleteWord(List<string> words, int count, string filePath)
+        private static void DeleteWord(List<string> words, string filePath)
         {
             Console.WriteLine("Enter word to delete: ");
             string worldToDelete = Console.ReadLine();
@@ -127,34 +117,27 @@ namespace WordLogger
             {
                 if (DeleteWord(filePath, worldToDelete, words))
                 {
-                    count--;
-                    Console.WriteLine($"Total words: {count}");
+                    Console.WriteLine($"Total words: {words.Where(s => !string.IsNullOrEmpty(s)).Count()}");
                     words.Clear();
-                    count = 0;
-                    count = GetWords(words, count, filePath).Result;
+                    GetWords(words, filePath);
                 }
                 else
                 {
                     Console.WriteLine("Not found");
                 }
             }
-
-            return count;
         }
 
-        private static async Task<int> GetWords(List<string> words, int count, string filePath)
+        private static async Task GetWords(List<string> words, string filePath)
         {
             string[] fileWords = await File.ReadAllLinesAsync(filePath);
             foreach (string word in fileWords)
             {
                 if (!string.IsNullOrEmpty(word))
                 {
-                    count++;
                     words.Add(word);
                 }
             }
-
-            return count;
         }
 
         public static string GetRandomWord(List<string> words)
