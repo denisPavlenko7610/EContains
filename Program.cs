@@ -23,11 +23,11 @@ namespace WordLogger
             Console.ReadLine();
         }
 
-        private static void GetAllWords(List<string> words, string filePathToWords)
+        private static async void GetAllWords(List<string> words, string filePathToWords)
         {
             if (File.Exists(filePathToWords))
             {
-                GetWords(words, filePathToWords);
+                await GetWords(words, filePathToWords);
                 SaveFile(words, filePathToWords);
             }
             else
@@ -96,7 +96,7 @@ namespace WordLogger
             }
         }
 
-        private static void AddWord(List<string> words, string filePath, string input, bool isLearnedWord)
+        private static async void AddWord(List<string> words, string filePath, string input, bool isLearnedWord)
         {
             words.Add(input.ToLower());
             Console.WriteLine($"'{input}' added.");
@@ -106,7 +106,7 @@ namespace WordLogger
                 Console.WriteLine($"Total words: {words.Where(s => !string.IsNullOrEmpty(s)).Count()}");
             }
 
-            File.AppendAllTextAsync(filePath, $"{input}\n");
+            await File.AppendAllTextAsync(filePath, $"{input}\n");
         }
 
         private static void DeleteWord(List<string> words, string filePath)
