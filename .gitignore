@@ -1,5 +1,46 @@
+# Visual Studio files
+.vs/
 bin/
 obj/
-/packages/
-riderModule.iml
-/_ReSharper.Caches/
+*.user
+*.suo
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+
+# NuGet Packages
+*.nupkg
+packages/
+
+# MSTest test Results
+TestResults/
+
+# Build Results
+[Bb]uild/
+
+# Resharper files
+_ReSharper*/
+
+# CodeLens files
+*.opendb
+
+# SQL Server files
+*.mdf
+*.ldf
+*.bak
+
+# Code maps
+*.map
+
+# Installshield output folder
+[Ee]xpress/
+
+# DocProject
+DocProject/buildhelp/
+DocProject/Help/*.HxT
+DocProject/Help/*.HxC
+DocProject/Help/*.hhc
+DocProject/Help/*.hhk
+DocProject/Help/*.hhp
