@@ -78,13 +78,25 @@ namespace WordLogger
             }
         }
 
-        private static void TryAddWord(List<string> words, List<string> learnedWords, string? word, bool isLearnedWord)
+        private static void TryAddWord(List<string> words, List<string> learnedWords, string word, bool isLearnedWord)
         {
+            bool isContain = false;
             if (isLearnedWord && words.Contains(word.ToLower()))
             {
                 DeleteWord(filePathToWords, word, words);
                 AddWord(learnedWords, filePathToLearned, word, isLearnedWord);
                 Console.WriteLine("Deleted");
+                isContain = true;
+                return;
+            }
+            else
+            {
+                isContain = false;
+            }
+
+            if(isLearnedWord && isContain == false)
+            {
+                Console.WriteLine("Not containe");
                 return;
             }
 
