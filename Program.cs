@@ -18,12 +18,12 @@ namespace WordLogger
             Console.WriteLine($"Words {words.Count} words.");
             Console.WriteLine($"Learned {learnedWords.Count} words.");
 
-            GetCommands(words, learnedWords, filePathToWords, filePathToLearned);
+            GetCommands(words, learnedWords, filePathToWords);
 
             Console.ReadLine();
         }
 
-        private static async void GetAllWords(List<string> words, string filePathToWords)
+        private static async Task GetAllWords(List<string> words, string filePathToWords)
         {
             if (File.Exists(filePathToWords))
             {
@@ -36,23 +36,23 @@ namespace WordLogger
             }
         }
 
-        private static void GetCommands(List<string> words, List<string> learnedWords, string filePathToWords, string filePathToLearned)
+        private static void GetCommands(List<string> words, List<string> learnedWords, string filePathToWords)
         {
             while (true)
             {
-                string? input = Console.ReadLine().Trim();
+                string? input = Console.ReadLine().Trim().ToLower();
 
-                if (input?.ToLower() == "q") //quit
+                if (input == "q") //quit
                 {
                     break;
                 }
-                else if (input?.ToLower() == "g") //get
+                else if (input == "g") //get
                 {
-                    Console.WriteLine(GetRandomWord(words));
+                    Console.WriteLine(GetRandomWord(words).Result);
                     input = "";
                     continue;
                 }
-                else if (input?.ToLower() == "d") //del
+                else if (input == "d") //del
                 {
                     if(DeleteWord(words, filePathToWords))
                         Console.WriteLine("Del");
@@ -60,12 +60,12 @@ namespace WordLogger
                     input = "";
                     continue;
                 }
-                else if (input?.ToLower() == "c") //clear
+                else if (input == "c") //clear
                 {
                     Console.Clear();
                     continue;
                 }
-                else if (input?.ToLower() == "l") //learn
+                else if (input == "l") //learn
                 {
                     Console.WriteLine("What word is learned?");
                     string word = Console.ReadLine();
@@ -80,7 +80,7 @@ namespace WordLogger
 
         private static void TryAddWord(List<string> words, List<string> learnedWords, string word, bool isLearnedWord)
         {
-            if (words.Contains(word.ToLower()) || learnedWords.Contains(word.ToLower()))
+            if (words.Contains(word) || learnedWords.Contains(word))
             {
                 Console.WriteLine($"'{word}' already exists.");
             }
@@ -148,9 +148,11 @@ namespace WordLogger
             }
         }
 
-        public static string GetRandomWord(List<string> words)
+        public static async Task<string> GetRandomWord(List<string> words)
         {
-            GetAllWords(words, filePathToWords);
+            words.Clear();
+            words.Capacity = 0;
+            await GetAllWords(words, filePathToWords);
             Random rand = new Random();
             int index = rand.Next(words.Count);
             return words[index];
