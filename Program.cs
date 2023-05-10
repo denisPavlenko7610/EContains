@@ -54,7 +54,9 @@ namespace WordLogger
                 }
                 else if (input?.ToLower() == "d") //del
                 {
-                    DeleteWord(words, filePathToWords);
+                    if(DeleteWord(words, filePathToWords))
+                        Console.WriteLine("Del");
+
                     input = "";
                     continue;
                 }
@@ -109,7 +111,7 @@ namespace WordLogger
             await File.AppendAllTextAsync(filePath, $"{input}\n");
         }
 
-        private static void DeleteWord(List<string> words, string filePath)
+        private static bool DeleteWord(List<string> words, string filePath)
         {
             Console.WriteLine("Enter word to delete: ");
             string worldToDelete = Console.ReadLine();
@@ -120,12 +122,15 @@ namespace WordLogger
                     Console.WriteLine($"Total words: {words.Where(s => !string.IsNullOrEmpty(s)).Count()}");
                     words.Clear();
                     GetWords(words, filePath);
+                    return true;
                 }
                 else
                 {
                     Console.WriteLine("Not found");
                 }
             }
+
+            return false;
         }
 
         private static async Task GetWords(List<string> words, string filePath)
@@ -160,7 +165,6 @@ namespace WordLogger
                     lines[i] = pattern.Replace(lines[i], string.Empty);
                     isDeleted = true;
                     listOfWords.Remove(lines[i]);
-                    Console.WriteLine("Del");
                 }
             }
 
