@@ -113,7 +113,8 @@ namespace WordLogger
         private static async void AddWord(List<string> words, string filePath, string input, bool isLearnedWord)
         {
             words.Add(input.ToLower());
-            Console.WriteLine($"'{input}' added.");
+            if(!isLearnedWord)
+                Console.WriteLine($"'{input}' added.");
 
             if (!isLearnedWord)
             {
