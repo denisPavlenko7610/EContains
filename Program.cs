@@ -150,6 +150,7 @@ namespace WordLogger
 
         public static string GetRandomWord(List<string> words)
         {
+            GetAllWords(words, filePathToWords);
             Random rand = new Random();
             int index = rand.Next(words.Count);
             return words[index];
