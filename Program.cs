@@ -69,7 +69,7 @@ namespace WordLogger
                 {
                     Console.WriteLine("What word is learned?");
                     string word = Console.ReadLine();
-                    TryAddWord(words, learnedWords, word, true);
+                    AddToLearn(words, learnedWords, word);
                     input = "";
                     continue;
                 }
@@ -80,26 +80,6 @@ namespace WordLogger
 
         private static void TryAddWord(List<string> words, List<string> learnedWords, string word, bool isLearnedWord)
         {
-            bool isContain = false;
-            if (isLearnedWord && words.Contains(word.ToLower()))
-            {
-                DeleteWord(filePathToWords, word, words);
-                AddWord(learnedWords, filePathToLearned, word, isLearnedWord);
-                Console.WriteLine("Deleted");
-                isContain = true;
-                return;
-            }
-            else
-            {
-                isContain = false;
-            }
-
-            if(isLearnedWord && isContain == false)
-            {
-                Console.WriteLine("Not containe");
-                return;
-            }
-
             if (words.Contains(word.ToLower()) || learnedWords.Contains(word.ToLower()))
             {
                 Console.WriteLine($"'{word}' already exists.");
@@ -110,10 +90,22 @@ namespace WordLogger
             }
         }
 
+        private static void AddToLearn(List<string> words, List<string> learnedWords, string word)
+        {
+            if (words.Contains(word.ToLower()))
+            {
+                DeleteWord(filePathToWords, word, words);
+                AddWord(learnedWords, filePathToLearned, word, true);
+                Console.WriteLine("Deleted");
+            }
+        }
+
         private static async void AddWord(List<string> words, string filePath, string input, bool isLearnedWord)
         {
             words.Add(input.ToLower());
-            Console.WriteLine($"'{input}' added.");
+
+            if(!isLearnedWord)
+                Console.WriteLine($"'{input}' added.");
 
             if (!isLearnedWord)
             {
