@@ -5,20 +5,16 @@ namespace WordLogger
     class Program
     {
         const string filePathToWords = "words.txt";
-        const string filePathToLearned = "learnedWords.txt";
 
         static void Main(string[] args)
         {
             List<string> words = new List<string>();
-            List<string> learnedWords = new List<string>();
 
             GetAllWords(words, filePathToWords);
-            GetAllWords(learnedWords, filePathToLearned);
 
             Console.WriteLine($"Words {words.Count} words.");
-            Console.WriteLine($"Learned {learnedWords.Count} words.");
 
-            GetCommands(words, learnedWords, filePathToWords);
+            GetCommands(words, filePathToWords);
 
             Console.ReadLine();
         }
@@ -36,7 +32,7 @@ namespace WordLogger
             }
         }
 
-        private static void GetCommands(List<string> words, List<string> learnedWords, string filePathToWords)
+        private static void GetCommands(List<string> words, string filePathToWords)
         {
             while (true)
             {
@@ -45,12 +41,6 @@ namespace WordLogger
                 if (input == "q") //quit
                 {
                     break;
-                }
-                else if (input == "g") //get
-                {
-                    Console.WriteLine(GetRandomWord(words).Result);
-                    input = "";
-                    continue;
                 }
                 else if (input == "d") //del
                 {
@@ -65,52 +55,36 @@ namespace WordLogger
                     Console.Clear();
                     continue;
                 }
-                else if (input == "l") //learn
-                {
-                    Console.WriteLine("What word is learned?");
-                    string word = Console.ReadLine();
-                    AddToLearn(words, learnedWords, word);
-                    input = "";
-                    continue;
-                }
 
-                TryAddWord(words, learnedWords, input, false);
+                TryAddWord(words, input);
             }
         }
 
-        private static void TryAddWord(List<string> words, List<string> learnedWords, string word, bool isLearnedWord)
+        private static void TryAddWord(List<string> words, string word)
         {
-            if (words.Contains(word) || learnedWords.Contains(word))
+            if (words.Contains(word, new CaseInsensitiveEqualityComparer()))
             {
                 Console.WriteLine($"'{word}' already exists.");
             }
             else
             {
-                AddWord(words, filePathToWords, word, isLearnedWord);
+                AddWord(words, filePathToWords, word);
             }
         }
 
-        private static void AddToLearn(List<string> words, List<string> learnedWords, string word)
+        public class CaseInsensitiveEqualityComparer : IEqualityComparer<string>
         {
-            if (words.Contains(word.ToLower()))
-            {
-                DeleteWord(filePathToWords, word, words);
-                AddWord(learnedWords, filePathToLearned, word, true);
-                Console.WriteLine("Deleted");
-            }
+            public bool Equals(string x, string y) => string.Equals(x, y, StringComparison.OrdinalIgnoreCase);
+
+            public int GetHashCode(string obj) => StringComparer.OrdinalIgnoreCase.GetHashCode(obj);
         }
 
-        private static async void AddWord(List<string> words, string filePath, string input, bool isLearnedWord)
+        private static async void AddWord(List<string> words, string filePath, string input)
         {
             words.Add(input.ToLower());
-            if(!isLearnedWord)
-                Console.WriteLine($"'{input}' added.");
+            Console.WriteLine($"'{input}' added.");
 
-            if (!isLearnedWord)
-            {
-                Console.WriteLine($"Total words: {words.Where(s => !string.IsNullOrEmpty(s)).Count()}");
-            }
-
+            Console.WriteLine($"Total words: {words.Where(s => !string.IsNullOrEmpty(s)).Count()}");
             await File.AppendAllTextAsync(filePath, $"{input}\n");
         }
 
@@ -146,16 +120,6 @@ namespace WordLogger
                     words.Add(word);
                 }
             }
-        }
-
-        public static async Task<string> GetRandomWord(List<string> words)
-        {
-            words.Clear();
-            words.Capacity = 0;
-            await GetAllWords(words, filePathToWords);
-            Random rand = new Random();
-            int index = rand.Next(words.Count);
-            return words[index];
         }
 
         public static bool DeleteWord(string filePath, string wordToDelete, List<string> listOfWords)
